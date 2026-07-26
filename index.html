@@ -70,6 +70,14 @@
           <div id="edex-swap-text" class="val-sm" style="color:gray;">-- GiB</div>
         </div>
 
+        <div class="edex-label" style="margin-top:15px;">STORAGE (C:)</div>
+        <div class="edex-flex-between">
+          <div class="val" id="edex-disk-text" style="font-size:0.9rem;">LOADING...</div>
+        </div>
+        <div class="edex-bar-bg" style="margin-top:5px;">
+          <div class="edex-bar-fill" id="edex-disk-bar" style="width:0%;"></div>
+        </div>
+
         <div class="edex-flex-between" style="margin-bottom: 10px;">
           <div class="lbl">TOP PROCESSES</div>
           <div class="val-sm" style="color:gray;">PID | NAME | CPU | MEM</div>
@@ -82,9 +90,9 @@
         <div id="file-list"></div>
       </section>
 
-      <section class="sidebar-panel hidden" id="panel-notes">
-        <textarea id="notes" placeholder="Jot something down..."></textarea>
-      </section>
+      <div id="panel-notes" class="sidebar-panel hidden">
+        <textarea id="persistent-notes" spellcheck="false" placeholder="> ENCRYPTED NOTE STORAGE..."></textarea>
+      </div>
     </aside>
 
     <main id="terminal-area">

@@ -1,8 +1,7 @@
-/* ---------- Variables & Base Setup ---------- */
 :root {
     --bg-color: #050505;
     --panel-bg: #0a0a0a;
-    --fg-color: #39ff14; /* CRT Phosphor Green */
+    --fg-color: #39ff14;
     --border-color: #1f5c1f;
     --highlight-bg: #1f5c1f80;
     --font-main: 'IBM Plex Mono', Consolas, monospace;
@@ -15,10 +14,9 @@ html, body {
     background-color: var(--bg-color);
     color: var(--fg-color);
     font-family: var(--font-main);
-    overflow: hidden; /* Prevents scrollbars */
+    overflow: hidden;
 }
 
-/* CRT Scanline Overlay */
 body::after {
     content: " ";
     display: block;
@@ -31,7 +29,6 @@ body::after {
     pointer-events: none;
 }
 
-/* ---------- Core Layout ---------- */
 .hidden {
     display: none !important;
 }
@@ -89,9 +86,8 @@ body::after {
     overflow: hidden;
 }
 
-/* ---------- Sidebar ---------- */
 #sidebar {
-    width: 380px; /* Increased from 320px */
+    width: 380px;
     display: flex;
     flex-direction: column;
     background: var(--panel-bg);
@@ -131,7 +127,6 @@ body::after {
     overflow-y: auto;
 }
 
-/* Stats Panel */
 .gauge-row {
     display: flex;
     gap: 15px;
@@ -180,7 +175,6 @@ body::after {
     width: 100%;
 }
 
-/* Files & Notes Panel */
 #file-path {
     margin-bottom: 10px;
     font-weight: bold;
@@ -219,7 +213,6 @@ body::after {
     border-color: var(--fg-color);
 }
 
-/* ---------- Terminal Area ---------- */
 #terminal-area {
     flex-grow: 1;
     display: flex;
@@ -304,7 +297,6 @@ body::after {
     height: 100%;
 }
 
-/* ---------- Statusbar ---------- */
 #statusbar {
     display: flex;
     justify-content: space-between;
@@ -314,7 +306,6 @@ body::after {
     font-size: 0.8rem;
 }
 
-/* ---------- eDEX-UI Inspired Elements ---------- */
 .edex-panel {
     display: flex;
     flex-direction: column;
@@ -327,11 +318,11 @@ body::after {
     padding-bottom: 5px;
 }
 .edex-clock {
-    font-size: 2.8rem; /* Adjusted for better fit */
+    font-size: 2.8rem;
     text-align: center;
     margin: 15px 0;
     letter-spacing: 2px;
-    white-space: nowrap; /* Forces text to stay on one line */
+    white-space: nowrap;
 }
 .edex-grid-4 {
     display: grid;
@@ -384,12 +375,12 @@ body::after {
     font-size: 0.8rem;
     margin-bottom: 4px;
 }
-/* Hide scrollbars completely but keep scroll functionality */
+
 ::-webkit-scrollbar {
     display: none;
 }
 
 .sidebar-panel {
-    -ms-overflow-style: none;  /* IE and Edge */
-    scrollbar-width: none;  /* Firefox */
+    -ms-overflow-style: none;
+    scrollbar-width: none;
 }

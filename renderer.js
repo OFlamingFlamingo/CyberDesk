@@ -1,11 +1,12 @@
 const { ipcRenderer } = require('electron');
 const path = require('path');
 
-// ---------- Boot sequence ----------
 const bootLines = [
   '> INITIALIZING CYBERDESK TERMINAL...',
   '> LOADING SHELL BRIDGE............ OK',
   '> MOUNTING FILESYSTEM............. OK',
+  '> READING TELEMETRY............... OK',
+  '> STARTING PROGRAM................ OK',
   '> READY.'
 ];
 
@@ -27,7 +28,6 @@ function typeBootLine() {
 }
 typeBootLine();
 
-// ---------- App start ----------
 function startApp() {
   startClock();
   startStats();
@@ -38,13 +38,11 @@ function startApp() {
   startTerminals();
 }
 
-// ---------- Clock ----------
 function startClock() {
   function tick() {
     const now = new Date();
     document.getElementById('clock').textContent = now.toLocaleTimeString();
 
-    // eDEX big clock
     const edexClock = document.getElementById('edex-clock');
     if (edexClock) {
       const hh = String(now.getHours()).padStart(2, '0');
@@ -65,7 +63,6 @@ function startClock() {
   setInterval(tick, 1000);
 }
 
-// ---------- Sidebar tab switching ----------
 function startSidebarTabs() {
   const tabs = document.querySelectorAll('.sidebar-tab');
   tabs.forEach(tab => {
@@ -85,7 +82,6 @@ function startSidebarToggle() {
   });
 }
 
-// ---------- System stats (eDEX UI) ----------
 let coreHistories = [];
 const MAX_HISTORY = 40;
 
@@ -167,7 +163,6 @@ function drawCpuGraphs(cpus) {
   }
 }
 
-// Pre-calculate shuffled array for memory matrix
 const MEM_COLS = 50;
 const MEM_ROWS = 6;
 const TOTAL_MEM_DOTS = MEM_COLS * MEM_ROWS;
@@ -286,7 +281,6 @@ function startStats() {
   setInterval(refreshStats, 2000);
 }
 
-// ---------- File browser ----------
 async function loadDir(dirPath) {
   const result = await ipcRenderer.invoke('list-dir', dirPath);
   const pathEl = document.getElementById('file-path');
@@ -325,7 +319,6 @@ function startFileBrowser() {
   loadDir(null);
 }
 
-// ---------- Quick actions ----------
 const QUICK_ACTIONS = [
   { label: 'clear', cmd: 'clear' },
   { label: 'ls', cmd: 'ls' },
@@ -351,7 +344,6 @@ function runQuickAction(action) {
   sendToActiveTerminal(action.cmd + '\r');
 }
 
-// ---------- Terminals (multi-tab) ----------
 const sessions = new Map();
 let activeId = null;
 let tabCounter = 0;

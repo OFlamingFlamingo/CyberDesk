@@ -41,7 +41,7 @@ app.on('activate', () => {
 
 ipcMain.handle('get-stats', async () => {
   try {
-    const [time, osInfo, system, chassis, cpu, currentLoad, mem, processes] = await Promise.all([
+    const [time, osInfo, system, chassis, cpu, currentLoad, mem, processes, disk] = await Promise.all([
       si.time(),
       si.osInfo(),
       si.system(),
@@ -49,15 +49,17 @@ ipcMain.handle('get-stats', async () => {
       si.cpu(),
       si.currentLoad(),
       si.mem(),
-      si.processes()
+      si.processes(),
+      si.fsSize()
     ]);
-    
+
     const activeProcs = processes.list
         .filter(p => p.pid != 0 && p.pid != 4 && !p.name.toLowerCase().includes('idle'))
         .sort((a, b) => (parseFloat(b.cpu) || 0) - (parseFloat(a.cpu) || 0));
 
     return {
       time, osInfo, system, chassis, cpu, currentLoad, mem,
+      disk,
       procsAll: processes.all,
       procsList: activeProcs.slice(0, 6)
     };
@@ -88,8 +90,8 @@ ipcMain.on('open-file', (event, filePath) => {
 });
 
 ipcMain.on('term-start', (event, id) => {
-  const shell = process.platform === 'win32' ? 'powershell.exe' : (process.env.SHELL || 'bash');
-  const ptyProcess = pty.spawn(shell, [], {
+  const shellType = process.platform === 'win32' ? 'powershell.exe' : (process.env.SHELL || 'bash');
+  const ptyProcess = pty.spawn(shellType, [], {
     name: 'xterm-256color',
     cols: 80,
     rows: 30,
@@ -99,10 +101,15 @@ ipcMain.on('term-start', (event, id) => {
   terminals.set(id, ptyProcess);
 
   ptyProcess.onData((data) => {
-    event.sender.send('term-data', { id, data });
+    if (!event.sender.isDestroyed()) {
+      event.sender.send('term-data', { id, data });
+    }
   });
+
   ptyProcess.onExit(() => {
-    event.sender.send('term-data', { id, data: '\r\n[process exited]\r\n' });
+    if (!event.sender.isDestroyed()) {
+      event.sender.send('term-data', { id, data: '\r\n[process exited]\r\n' });
+    }
     terminals.delete(id);
   });
 });

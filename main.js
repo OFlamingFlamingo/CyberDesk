@@ -6,7 +6,7 @@ const pty = require('node-pty');
 const si = require('systeminformation');
 
 let mainWindow;
-const terminals = new Map(); // id -> pty process
+const terminals = new Map();
 
 function createWindow() {
   mainWindow = new BrowserWindow({
@@ -39,7 +39,6 @@ app.on('activate', () => {
   if (BrowserWindow.getAllWindows().length === 0) createWindow();
 });
 
-// ---------- System stats (eDEX style) ----------
 ipcMain.handle('get-stats', async () => {
   try {
     const [time, osInfo, system, chassis, cpu, currentLoad, mem, processes] = await Promise.all([
@@ -52,8 +51,7 @@ ipcMain.handle('get-stats', async () => {
       si.mem(),
       si.processes()
     ]);
-
-    // Aggressively filter out Windows pseudo-processes (Idle and System) and force number sorting
+    
     const activeProcs = processes.list
         .filter(p => p.pid != 0 && p.pid != 4 && !p.name.toLowerCase().includes('idle'))
         .sort((a, b) => (parseFloat(b.cpu) || 0) - (parseFloat(a.cpu) || 0));
@@ -61,14 +59,13 @@ ipcMain.handle('get-stats', async () => {
     return {
       time, osInfo, system, chassis, cpu, currentLoad, mem,
       procsAll: processes.all,
-      procsList: activeProcs.slice(0, 6) // Top 6 active processes
+      procsList: activeProcs.slice(0, 6)
     };
   } catch (e) {
     return null;
   }
 });
 
-// ---------- File browser ----------
 ipcMain.handle('list-dir', (event, dirPath) => {
   const target = dirPath || os.homedir();
   try {
@@ -86,12 +83,10 @@ ipcMain.handle('list-dir', (event, dirPath) => {
   }
 });
 
-// ADD THIS NEW HANDLER:
 ipcMain.on('open-file', (event, filePath) => {
   shell.openPath(filePath);
 });
 
-// ---------- Terminal (multi-session, real PTY) ----------
 ipcMain.on('term-start', (event, id) => {
   const shell = process.platform === 'win32' ? 'powershell.exe' : (process.env.SHELL || 'bash');
   const ptyProcess = pty.spawn(shell, [], {

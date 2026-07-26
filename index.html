@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>CyberDesk Terminal</title>
+  <link rel="stylesheet" href="./node_modules/xterm/css/xterm.css">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div id="boot-screen">
+  <pre id="boot-text"></pre>
+</div>
+
+<div id="app" class="hidden">
+  <header id="topbar">
+    <button id="sidebar-toggle" title="Toggle sidebar">&#9776;</button>
+    <div class="brand">CyberDesk Terminal</div>
+    <div id="hostinfo"></div>
+    <div id="clock"></div>
+  </header>
+
+  <div id="main-layout">
+    <aside id="sidebar">
+      <nav id="sidebar-tabs">
+        <button class="sidebar-tab active" data-panel="stats">System</button>
+        <button class="sidebar-tab" data-panel="files">Files</button>
+        <button class="sidebar-tab" data-panel="notes">Notes</button>
+      </nav>
+
+      <section class="sidebar-panel edex-panel" id="panel-stats">
+        <div class="edex-topbar"><span>PANEL</span><span>SYSTEM</span></div>
+        <div id="edex-clock" class="edex-clock">00 : 00 : 00</div>
+
+        <div class="edex-grid-4 border-bottom">
+          <div><div id="edex-year" class="lbl">----</div><div id="edex-date" style="font-weight:bold;">--- --</div></div>
+          <div><div class="lbl">UPTIME</div><div id="edex-uptime">--d--:--</div></div>
+          <div><div class="lbl">TYPE</div><div id="edex-type">---</div></div>
+          <div><div class="lbl">POWER</div><div>ON</div></div>
+        </div>
+
+        <div class="edex-grid-3 border-bottom">
+          <div><div class="lbl">MANUFACTURER</div><div id="edex-mfg" class="val-sm" style="color:gray;">---</div></div>
+          <div><div class="lbl">MODEL</div><div id="edex-model" class="val-sm" style="color:gray;">---</div></div>
+          <div><div class="lbl">CHASSIS</div><div id="edex-chassis" class="val-sm" style="color:gray;">---</div></div>
+        </div>
+
+        <div class="edex-flex-between">
+          <div class="lbl">CPU USAGE</div>
+          <div id="edex-cpu-name" class="val-sm" style="color:gray;">---</div>
+        </div>
+
+        <div id="cpu-graphs-container"></div>
+
+        <div class="edex-grid-4 border-bottom" style="margin-top: 10px;">
+          <div><div class="lbl">CORES</div><div id="edex-cores" class="val-sm">--</div></div>
+          <div><div class="lbl">SPD</div><div id="edex-spd" class="val-sm">--GHz</div></div>
+          <div><div class="lbl">MAX</div><div id="edex-max" class="val-sm">--GHz</div></div>
+          <div><div class="lbl">TASKS</div><div id="edex-tasks" class="val-sm">--</div></div>
+        </div>
+
+        <div class="edex-flex-between" style="margin-top: 10px;">
+          <div class="lbl">MEMORY</div>
+          <div id="edex-mem-text" class="val-sm" style="color:gray;">USING -- OUT OF -- GiB</div>
+        </div>
+        <canvas id="mem-matrix" width="280" height="60" style="margin: 5px 0;"></canvas>
+
+        <div class="edex-flex-between border-bottom" style="align-items:center; padding-bottom: 10px; margin-bottom: 10px;">
+          <div class="lbl">SWAP</div>
+          <div class="swap-bar-container"><div id="edex-swap-bar"></div></div>
+          <div id="edex-swap-text" class="val-sm" style="color:gray;">-- GiB</div>
+        </div>
+
+        <div class="edex-flex-between" style="margin-bottom: 10px;">
+          <div class="lbl">TOP PROCESSES</div>
+          <div class="val-sm" style="color:gray;">PID | NAME | CPU | MEM</div>
+        </div>
+        <div id="edex-procs"></div>
+      </section>
+
+      <section class="sidebar-panel hidden" id="panel-files">
+        <div id="file-path"></div>
+        <div id="file-list"></div>
+      </section>
+
+      <section class="sidebar-panel hidden" id="panel-notes">
+        <textarea id="notes" placeholder="Jot something down..."></textarea>
+      </section>
+    </aside>
+
+    <main id="terminal-area">
+      <div id="tab-bar">
+        <div id="tab-list"></div>
+        <button id="new-tab-btn" title="New terminal">+</button>
+      </div>
+      <div id="quick-actions"></div>
+      <div id="terminal-container"></div>
+    </main>
+  </div>
+
+  <footer id="statusbar">
+    <span id="status-left">Ready</span>
+    <span id="datestamp"></span>
+  </footer>
+</div>
+
+<script src="./node_modules/xterm/lib/xterm.js"></script>
+<script src="./node_modules/xterm-addon-fit/lib/xterm-addon-fit.js"></script>
+<script src="renderer.js"></script>
+</body>
+</html>

@@ -1,0 +1,35 @@
+{
+  "name": "cyberdesk",
+  "version": "1.0.0",
+  "description": "A personalized sci-fi-style desktop shell",
+  "main": "main.js",
+  "scripts": {
+    "postinstall": "electron-builder install-app-deps",
+    "start": "electron .",
+    "build": "electron-builder --win"
+  },
+  "author": "You",
+  "license": "MIT",
+  "devDependencies": {
+    "electron": "^31.0.0",
+    "electron-builder": "^24.13.3"
+  },
+  "dependencies": {
+    "node-pty": "^1.0.0",
+    "systeminformation": "^5.33.1",
+    "xterm": "^5.3.0",
+    "xterm-addon-fit": "^0.8.0"
+  },
+  "build": {
+    "appId": "com.yourname.cyberdesk",
+    "productName": "CyberDesk",
+    "win": {
+      "target": "portable",
+      "icon": "build/icon.ico"
+    },
+    "files": [
+      "**/*",
+      "!README.md"
+    ]
+  }
+}

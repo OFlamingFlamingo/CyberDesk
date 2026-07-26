@@ -20,12 +20,22 @@
     "xterm": "^5.3.0",
     "xterm-addon-fit": "^0.8.0"
   },
+  "scripts": {
+    "postinstall": "electron-builder install-app-deps",
+    "start": "electron .",
+    "build:win": "electron-builder --win",
+    "build:mac": "electron-builder --mac"
+  },
   "build": {
     "appId": "com.yourname.cyberdesk",
     "productName": "CyberDesk",
     "win": {
       "target": "portable",
       "icon": "build/icon.ico"
+    },
+    "mac": {
+      "target": "dmg",
+      "icon": "build/icon.icns"
     },
     "files": [
       "**/*",

@@ -28,6 +28,76 @@ function typeBootLine() {
 }
 typeBootLine();
 
+let audioCtx;
+
+function playKeyClick() {
+  try {
+    if (!audioCtx) {
+      audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    }
+    if (audioCtx.state === 'suspended') audioCtx.resume();
+
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+
+    osc.type = 'square';
+    osc.frequency.setValueAtTime(150, audioCtx.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(40, audioCtx.currentTime + 0.03);
+
+    gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.03);
+
+    osc.connect(gain);
+    gain.connect(audioCtx.destination);
+
+    osc.start();
+    osc.stop(audioCtx.currentTime + 0.03);
+  } catch (err) {
+
+  }
+}
+
+function playUIClick() {
+  try {
+    if (!audioCtx) {
+      audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    }
+    if (audioCtx.state === 'suspended') audioCtx.resume();
+
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(400, audioCtx.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(100, audioCtx.currentTime + 0.02);
+
+    gain.gain.setValueAtTime(0.08, audioCtx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.02);
+
+    osc.connect(gain);
+    gain.connect(audioCtx.destination);
+
+    osc.start();
+    osc.stop(audioCtx.currentTime + 0.02);
+  } catch (err) {}
+}
+
+document.addEventListener('keydown', (e) => {
+  if (e.key !== 'Shift' && e.key !== 'Control' && e.key !== 'Alt' && e.key !== 'Meta') {
+    playKeyClick();
+  }
+}, { capture: true });
+
+document.addEventListener('DOMContentLoaded', () => {
+  const notesEl = document.getElementById('persistent-notes');
+  if (notesEl) {
+    notesEl.value = localStorage.getItem('cyberdesk-notes') || '';
+    notesEl.addEventListener('input', () => {
+      localStorage.setItem('cyberdesk-notes', notesEl.value);
+    });
+  }
+});
+
 function startApp() {
   startClock();
   startStats();
@@ -67,6 +137,7 @@ function startSidebarTabs() {
   const tabs = document.querySelectorAll('.sidebar-tab');
   tabs.forEach(tab => {
     tab.addEventListener('click', () => {
+      playUIClick(); // <--- Add this
       tabs.forEach(t => t.classList.remove('active'));
       tab.classList.add('active');
       document.querySelectorAll('.sidebar-panel').forEach(p => p.classList.add('hidden'));
@@ -77,6 +148,7 @@ function startSidebarTabs() {
 
 function startSidebarToggle() {
   document.getElementById('sidebar-toggle').addEventListener('click', () => {
+    playUIClick(); // <--- Add this
     document.getElementById('sidebar').classList.toggle('collapsed');
     setTimeout(() => fitActiveTerminal(), 200);
   });
@@ -84,6 +156,13 @@ function startSidebarToggle() {
 
 let coreHistories = [];
 const MAX_HISTORY = 40;
+
+function getThemeColors() {
+  const fg = getComputedStyle(document.body).getPropertyValue('--fg-color').trim();
+  if (fg === '#ffb000') return { hex: fg, r: 255, g: 176, b: 0 };
+  if (fg === '#00ffff') return { hex: fg, r: 0, g: 255, b: 255 };
+  return { hex: '#39ff14', r: 57, g: 255, b: 20 }; // Default green
+}
 
 function drawCpuGraphs(cpus) {
   const container = document.getElementById('cpu-graphs-container');
@@ -128,6 +207,7 @@ function drawCpuGraphs(cpus) {
 
   const numGraphs = cpus.length > 6 ? 2 : 1;
   const coresPerGraph = Math.ceil(cpus.length / numGraphs);
+  const theme = getThemeColors(); // Get the current theme color
 
   for (let g = 0; g < numGraphs; g++) {
     const canvas = document.getElementById(`cpu-canvas-${g}`);
@@ -146,7 +226,7 @@ function drawCpuGraphs(cpus) {
       if (hist && hist.length > 0) totalLoad += hist[hist.length-1];
       count++;
 
-      ctx.strokeStyle = `rgba(57, 255, 20, ${0.4 + (c % 3) * 0.2})`;
+      ctx.strokeStyle = `rgba(${theme.r}, ${theme.g}, ${theme.b}, ${0.4 + (c % 3) * 0.2})`;
       ctx.lineWidth = 1;
       ctx.beginPath();
       if (hist) {
@@ -185,11 +265,13 @@ function drawMemoryMatrix(used, total) {
   const dotH = canvas.height / MEM_ROWS;
 
   const activeIndices = new Set(memIndices.slice(0, usedDots));
+  const theme = getThemeColors(); // Get the current theme color
 
   let dotCount = 0;
   for (let y = 0; y < MEM_ROWS; y++) {
     for (let x = 0; x < MEM_COLS; x++) {
-      ctx.fillStyle = activeIndices.has(dotCount) ? '#39ff14' : 'rgba(57, 255, 20, 0.15)';
+      // Apply dynamic color based on theme
+      ctx.fillStyle = activeIndices.has(dotCount) ? theme.hex : `rgba(${theme.r}, ${theme.g}, ${theme.b}, 0.15)`;
       ctx.fillRect(x * dotW + 1, y * dotH + 1, dotW - 2, dotH - 2);
       dotCount++;
     }
@@ -252,6 +334,18 @@ async function refreshStats() {
 
   const swapBarEl = document.getElementById('edex-swap-bar');
   if (swapBarEl) swapBarEl.style.width = swapTotal > 0 ? `${(swapUsed / swapTotal) * 100}%` : '0%';
+
+  if (s.disk && s.disk.length > 0) {
+    const mainDrive = s.disk[0];
+    const dTotal = (mainDrive.size / 1073741824).toFixed(1);
+    const dUsed = (mainDrive.used / 1073741824).toFixed(1);
+
+    const diskTextEl = document.getElementById('edex-disk-text');
+    if (diskTextEl) diskTextEl.textContent = `${dUsed} / ${dTotal} GiB (${mainDrive.use}%)`;
+
+    const diskBarEl = document.getElementById('edex-disk-bar');
+    if (diskBarEl) diskBarEl.style.width = mainDrive.use + '%';
+  }
 
   if (s.currentLoad && s.currentLoad.cpus) {
     drawCpuGraphs(s.currentLoad.cpus);
@@ -320,6 +414,7 @@ function startFileBrowser() {
 }
 
 const QUICK_ACTIONS = [
+  { label: 'TOGGLE THEME', cmd: 'theme' },
   { label: 'clear', cmd: 'clear' },
   { label: 'ls', cmd: 'ls' },
   { label: 'git status', cmd: 'git status' },
@@ -335,12 +430,36 @@ function startQuickActions() {
     const btn = document.createElement('button');
     btn.className = 'quick-action-btn';
     btn.textContent = action.label;
-    btn.onclick = () => runQuickAction(action);
+    btn.onclick = () => {
+      playUIClick();
+      runQuickAction(action);
+    };
     bar.appendChild(btn);
   });
 }
 
+const themes = ['theme-green', 'theme-amber', 'theme-cyan'];
+let currentThemeIdx = 0;
+
 function runQuickAction(action) {
+  if (action.cmd === 'theme') {
+    document.body.classList.remove(...themes);
+    currentThemeIdx = (currentThemeIdx + 1) % themes.length;
+    document.body.classList.add(themes[currentThemeIdx]);
+
+    const newColor = getThemeColors().hex;
+    sessions.forEach(session => {
+      if (session.term && session.term.options) {
+        session.term.options.theme = {
+          ...session.term.options.theme,
+          foreground: newColor,
+          cursor: newColor
+        };
+      }
+    });
+
+    return;
+  }
   sendToActiveTerminal(action.cmd + '\r');
 }
 
@@ -407,6 +526,7 @@ function createTerminalSession() {
 
   ipcRenderer.send('term-start', id);
   term.onData(data => ipcRenderer.send('term-input', { id, input: data }));
+  term.onKey(() => playKeyClick());
   ipcRenderer.send('term-resize', { id, cols: term.cols, rows: term.rows });
 
   sessions.set(id, { term, fitAddon, el });
@@ -421,10 +541,15 @@ function createTerminalSession() {
     const closeX = document.createElement('span');
     closeX.className = 'close-x';
     closeX.textContent = '×';
-    closeX.onclick = (e) => { e.stopPropagation(); closeTerminalSession(id); };
+    closeX.onclick = (e) => { e.stopPropagation();
+      playUIClick();
+      closeTerminalSession(id); };
     tab.appendChild(label);
     tab.appendChild(closeX);
-    tab.onclick = () => setActiveTerminal(id);
+    tab.onclick = () => {
+      playUIClick();
+      setActiveTerminal(id);
+    };
     tabList.appendChild(tab);
   }
 
@@ -480,7 +605,10 @@ function startTerminals() {
 
   const newTabBtn = document.getElementById('new-tab-btn');
   if (newTabBtn) {
-    newTabBtn.addEventListener('click', () => createTerminalSession());
+    newTabBtn.addEventListener('click', () => {
+      playUIClick(); // <--- Add this
+      createTerminalSession();
+    });
   }
 
   createTerminalSession();

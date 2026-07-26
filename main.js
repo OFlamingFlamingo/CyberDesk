@@ -12,6 +12,7 @@ function createWindow() {
   mainWindow = new BrowserWindow({
     width: 1600,
     height: 1100,
+    title: 'CyberDesk Terminal',
     backgroundColor: '#000000',
     frame: true,
     webPreferences: {

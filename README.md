@@ -29,11 +29,20 @@ Before you begin, ensure you have the following installed on your system:
 
 ## Installation & Setup
 
+**Simply download from the releases tab!**
+
+Or, if you want to build it using the source code:
+
 1. **Clone or download** this repository to your local machine:
    ```bash
    git clone [https://github.com/your-username/cyberdesk.git](https://github.com/your-username/cyberdesk.git)
    cd cyberdesk
 
-If you want CyberDesk as a standalone .exe:
+2. **Open the project folder in your terminal and type:**
+   ```bash
+   npm start
+
+If you want CyberDesk as a standalone .exe/.app:
   ```bash
-  npm run build
+  npm run build:win (For Windows)
+  npm run build:mac (For Mac)

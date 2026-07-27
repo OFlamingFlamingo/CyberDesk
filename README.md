@@ -40,6 +40,7 @@ Or, if you want to build it using the source code:
 
 2. **Open the project folder in your terminal and type:**
    ```bash
+   npm install
    npm start
 
 If you want CyberDesk as a standalone .exe/.app:
